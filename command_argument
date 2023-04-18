@@ -1,0 +1,54 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <getopt.h>
+
+int main(int argc, char **argv)
+{
+    int arg1 = 0;
+    char *arg2 = NULL;
+    float optional_arg = 0.0;
+
+    // Define the options
+    static struct option long_options[] = {
+        {"optional_arg", required_argument, 0, 'o'},
+        {0, 0, 0, 0}
+    };
+    int option_index = 0;
+    int c;
+
+    // Parse the options
+    while ((c = getopt_long(argc, argv, "o:", long_options, &option_index)) != -1)
+    {
+        switch (c)
+        {
+            case 'o':
+                optional_arg = atof(optarg);
+                break;
+            case '?':
+                // Error handling goes here
+                break;
+            default:
+                // Error handling goes here
+                break;
+        }
+    }
+
+    // Parse the positional arguments
+    if (argc - optind != 2)
+    {
+        // Error handling goes here
+    }
+    arg1 = atoi(argv[optind]);
+    arg2 = argv[optind + 1];
+
+    // Use the arguments
+    printf("arg1: %d\n", arg1);
+    printf("arg2: %s\n", arg2);
+    if (optional_arg)
+    {
+        printf("optional_arg: %f\n", optional_arg);
+    }
+
+    return 0;
+}
+
