@@ -1,0 +1,49 @@
+/**
+ * handle_path - Find and execute a command in the PATH environment variable.
+ *               Avoid calling fork if the command doesn't exist.
+ *
+ * @command: The name of the command to execute.
+ *
+ * Return: 0 on success, -1 on failure.
+ */
+int handle_path(char *command)
+{
+	char *path = getenv("PATH");
+	char *dir = strtok(path, ":");
+	int found = 0;
+
+	while (dir != NULL)
+	{
+		char *full_path = malloc(strlen(dir) + strlen(command) + 2);
+		sprintf(full_path, "%s/%s", dir, command);
+		if (access(full_path, X_OK) == 0)
+		{
+			found = 1;
+			pid_t pid = fork();
+			if (pid == -1)
+			{
+				perror("fork");
+				exit(EXIT_FAILURE);
+			}
+			else if (pid == 0)
+			{
+				execv(full_path, NULL);
+				perror("execv");
+				exit(EXIT_FAILURE);
+			}
+			else
+			{
+				wait(NULL);
+				free(full_path);
+				return (0);
+			}
+		}
+		free(full_path);
+		dir = strtok(NULL, ":");
+	}
+
+	if (!found)
+		fprintf(stderr, "%s: command not found\n", command);
+
+	return (-1);
+}
